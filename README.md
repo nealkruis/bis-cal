@@ -1,6 +1,6 @@
 # Boulder Indoor Soccer calendar creator
 
-This script will parse [boulderindoorsoccer.com](boulderindoorsoccer.com) and create an ICS calendar file in the directory where it is executed.
+This script will parse [boulderindoorsoccer.com](http://boulderindoorsoccer.com/) and create an ICS calendar file in the directory where it is executed.
 
 ## How to run
 
@@ -8,7 +8,7 @@ With python installed (I suggest downloading python through anaconda from [here]
 
     python bis-cal.py <team>
 
-where `<team>` is the name of the team who's calendar you want. The script will also look up teams from a subset of a team name. For example, "Slothy" will generate the calendar for the team "Sooooo Slothy" given that there are no other teams with that name.
+where `<team>` is the name of the team who's calendar you want. The script will also look up teams from a subset of a team name. For example, "Slothy" will generate the calendar for the team "Sooooo Slothy" given that there are no other teams with "Slothy" in their name.
 
 ## Importing the calendar into Google Calendar
 

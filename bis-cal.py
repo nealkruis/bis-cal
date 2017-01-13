@@ -9,7 +9,7 @@ import sys
 def getUrl(team):
     with requests.Session() as s:
         url = 'http://www.boulderindoorsoccer.com/standings/adult_standings.php'
-        soup = BeautifulSoup(s.get(url).text)
+        soup = BeautifulSoup(s.get(url).text,'lxml')
         # Session
         selector = soup.find("select", attrs={"class":"scheduleheader"})
         session = selector.findAll("option")[0].text
@@ -18,14 +18,19 @@ def getUrl(team):
         table = soup.find("table", attrs={"class":"scheduleTable"})
         count = 0
         teams = []
+        leagues = []
         link = None
         for tr in table.findAll("tr"):
             ncol = len(tr.findAll("td"))
+            if ncol == 1:
+                tds = tr.findAll("td")
+                league = tds[0].text
             tds = tr.findAll("td", attrs={"align":"left"})
             if ncol > 1 and len(tds) > 0:
                 tCol = tds[0]
                 if team in tCol.text:
                     teams.append(tCol.text)
+                    leagues.append(league)
                     link = tCol.findAll("a")[0]['href']
                     count += 1
         if count != 1:
@@ -38,20 +43,20 @@ def getUrl(team):
             elif count == 0:
                 "Team not found!"
             return None, None, None
-        return link, teams[0], session
+        return link, teams[0], session, leagues[0]
 
 def bis_cal(team):
 
     mt = pytz.timezone('US/Mountain')
     utc = pytz.utc
 
-    link, team_name, session = getUrl(team)
+    link, team_name, session, league = getUrl(team)
 
     if link:
         with requests.Session() as s:
             url_root = 'http://www.boulderindoorsoccer.com/schedules/'
-            url = url_root + link
-            soup = BeautifulSoup(s.get(url).text)
+            url = url_root + link + "&l={}".format(league.strip().replace(' ','+'))
+            soup = BeautifulSoup(s.get(url).text,'lxml')
             table = soup.find("table", attrs={"class":"scheduleTable"})
             c = Calendar()
             for tr in table.findAll("tr"):
@@ -81,7 +86,7 @@ def bis_cal(team):
                     e.location = "Boulder Indoor Soccer, 3203 Pearl Street, Boulder, CO 80301, United States"
                     c.events.append(e)
 
-            cname = team_name + ' ' + session + '.ics'
+            cname = team_name.replace(' ','-') + '-' + session.replace(' ','-') + '.ics'
             with open(cname, 'w') as ics_file:
                 ics_file.writelines(c)
             print "Calendar succesfully written for {team_name}, {session}: \"{cname}\"".format(**locals())

@@ -9,7 +9,7 @@ import sys
 def getUrl(team):
     with requests.Session() as s:
         url = 'http://www.boulderindoorsoccer.com/standings/adult_standings.php'
-        soup = BeautifulSoup(s.get(url).text,'lxml')
+        soup = BeautifulSoup(s.get(url).text,'html.parser')
         # Session
         selector = soup.find("select", attrs={"class":"scheduleheader"})
         session = selector.findAll("option")[0].text
@@ -35,13 +35,13 @@ def getUrl(team):
                     count += 1
         if count != 1:
             if count > 1:
-                print "Found too many teams ({count} matches): ".format(**locals())
+                print("Found too many teams ({count} matches): ".format(**locals()))
                 for t in teams:
-                    print "  {t}".format(**locals())
+                    print("  {t}".format(**locals()))
 
-                print "\nBe more specifc!"
+                print("\nBe more specifc!")
             elif count == 0:
-                "Team not found!"
+                print("Team not found!")
             return None, None, None
         return link, teams[0], session, leagues[0]
 
@@ -56,7 +56,7 @@ def bis_cal(team):
         with requests.Session() as s:
             url_root = 'http://www.boulderindoorsoccer.com/schedules/'
             url = url_root + link + "&l={}".format(league.strip().replace(' ','+'))
-            soup = BeautifulSoup(s.get(url).text,'lxml')
+            soup = BeautifulSoup(s.get(url).text,'html.parser')
             table = soup.find("table", attrs={"class":"scheduleTable"})
             c = Calendar()
             for tr in table.findAll("tr"):
@@ -84,12 +84,12 @@ def bis_cal(team):
                     e.begin = mt_time#.astimezone(utc)
                     e.duration = timedelta(minutes=50)
                     e.location = "Boulder Indoor Soccer, 3203 Pearl Street, Boulder, CO 80301, United States"
-                    c.events.append(e)
+                    c.events.add(e)
 
             cname = team_name.replace(' ','-') + '-' + session.replace(' ','-') + '.ics'
             with open(cname, 'w') as ics_file:
                 ics_file.writelines(c)
-            print "Calendar succesfully written for {team_name}, {session}: \"{cname}\"".format(**locals())
+            print("Calendar succesfully written for {team_name}, {session}: \"{cname}\"".format(**locals()))
     else:
         return None
 

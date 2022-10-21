@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "bis-cal"
+version = "0.1.0"
+description = "Script that creates calendar files for Boulder Indoor Soccer teams"
+authors = ["Neal Kruis"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "2.28.1"
+beautifulsoup4 = "4.11.1"
+ics = "0.7.2"
+pytz = "2022.5"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

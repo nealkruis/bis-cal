@@ -48,17 +48,16 @@ def getUrl(team):
 def bis_cal(team):
 
     mt = pytz.timezone('US/Mountain')
-    utc = pytz.utc
 
     link, team_name, session, league = getUrl(team)
 
     if link:
         with requests.Session() as s:
             url_root = 'http://www.boulderindoorsoccer.com/schedules/'
-            url = url_root + link + "&l={}".format(league.strip().replace(' ','+'))
+            url = url_root + link + f"&d=all" #+ "&l={}".format(league.strip().replace(' ','+'))
             soup = BeautifulSoup(s.get(url).text,'html.parser')
             table = soup.find("table", attrs={"class":"scheduleTable"})
-            c = Calendar()
+            calendar = Calendar()
             for tr in table.findAll("tr"):
                 good_line = False
                 column = 1
@@ -84,12 +83,14 @@ def bis_cal(team):
                     e.begin = mt_time#.astimezone(utc)
                     e.duration = timedelta(minutes=50)
                     e.location = "Boulder Indoor Soccer, 3203 Pearl Street, Boulder, CO 80301, United States"
-                    c.events.add(e)
+                    calendar.events.add(e)
 
             cname = team_name.replace(' ','-') + '-' + session.replace(' ','-') + '.ics'
+            if len(calendar.events) == 0:
+                raise Exception(f"No events retrieved from {url}")
             with open(cname, 'w') as ics_file:
-                ics_file.writelines(c)
-            print("Calendar succesfully written for {team_name}, {session}: \"{cname}\"".format(**locals()))
+                ics_file.writelines(calendar)
+            print(f"{len(calendar.events)} games successfully written to \"{cname}\"")
     else:
         return None
 
